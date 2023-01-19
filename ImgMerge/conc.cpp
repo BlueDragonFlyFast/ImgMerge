@@ -52,7 +52,6 @@ int main(int argc, char** argv) {
 
     //BFMatcher matcher ( NORM_HAMMING );
     matcher->match(descriptors_1, descriptors_2, matches);
-    cout << descriptors_1.size() << "==" << descriptors_2.size() << endl;
     // Шаг 4: Проверка пары точек совпадения
     double min_dist = 10000, max_dist = 0;
 
@@ -89,43 +88,29 @@ int main(int argc, char** argv) {
     //create for each point a new Keypoint with size 1:
 
     vector<Point2f> kps1 = {}, kps2 = {};
-    cout << keypoints_1.size() << " == " << keypoints_2.size() << "===" << good_matches.size() << '\n';
     for (size_t i = 0; i < good_matches.size(); i++) {
         kps1.push_back(keypoints_1[good_matches[i].queryIdx].pt);
         kps2.push_back(keypoints_2[good_matches[i].trainIdx].pt);
     }
-
-    //for (size_t i = 0; i < keypoints_2.size(); i++) {
-    //    kps2.push_back(keypoints_2[i].pt);
-    //}
 
     if (kps1.size() < 4 || kps2.size() < 4) {
         return 22;
     }
 
     Mat H = findHomography(kps2, kps1, RANSAC, 3), comboImage = {};
-    cout << "===" << H << endl << H.at<double>(0, 0) << endl;
-    
-    //warpPerspective(img_2, comboImage, H, Size(img_1.cols + img_2.cols, img_1.rows));
-    //warpPerspective(img_1, comboImage, H, Size(img_1.cols + img_2.cols, img_1.rows));
     
     warpPerspective(img_2, comboImage, H, Size(img_1.cols + img_2.cols, img_2.rows));
-    // 
-    //HOW?
+
     Vec3b bl = { 0, 0, 0 };
     for (int i = 0; i < img_1.rows; i++) {
         for (int j = 0; j < img_1.cols; j++) {
-            //comboImage[i][j] = img_1[i][j];
-            //if (comboImage.at<Vec3b>(Point(j, i)) == bl) {
-                comboImage.at<Vec3b>(Point(j, i)) = img_1.at<Vec3b>(Point(j, i));
-            //} else {
-            //    comboImage.at<Vec3b>(Point(j + img_1.cols, i)) = comboImage.at<Vec3b>(Point(j, i));
-            //    comboImage.at<Vec3b>(Point(j, i)) = img_1.at<Vec3b>(Point(j, i));
-            //}
+            comboImage.at<Vec3b>(Point(j, i)) = img_1.at<Vec3b>(Point(j, i));
         }
     }
 
-    imshow("result", comboImage);
+    imshow  ("result", comboImage);
+
+    imwrite ("result.jpg", comboImage);
     waitKey(0);
 
     return 0;
